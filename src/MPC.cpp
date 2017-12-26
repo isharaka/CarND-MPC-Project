@@ -6,8 +6,8 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 25;
-double dt = 0.05;
+size_t N =  10;
+double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -112,8 +112,8 @@ class FG_eval {
       AD<double> delta0 = vars[delta_start + t - 1];
       AD<double> a0 = vars[a_start + t - 1];
 
-      AD<double> f0 = coeffs[0] + coeffs[1] * x0;
-      AD<double> psides0 = CppAD::atan(coeffs[1]);
+      AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * CppAD::pow(x0, 2) + coeffs[3] * CppAD::pow(x0, 3);
+      AD<double> psides0 = CppAD::atan(coeffs[1] + 2 * coeffs[2] * x0 + 3 * coeffs[3] * CppAD::pow(x0, 2));
 
       // Here's `x` to get you started.
       // The idea here is to constraint this value to be 0.
@@ -269,5 +269,16 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   //
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
-  return {solution.x[delta_start],   solution.x[a_start]};
+  vector<double> result;
+
+  result.push_back(solution.x[delta_start]);
+  result.push_back(solution.x[a_start]);
+
+  for (size_t i = 0; i < N-1; i++)
+    result.push_back(solution.x[x_start + i + 1]);
+
+  for (size_t i = 0; i < N-1; i++)
+    result.push_back(solution.x[y_start + i + 1]);
+
+  return result;
 }
