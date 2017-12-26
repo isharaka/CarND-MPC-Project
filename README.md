@@ -8,32 +8,32 @@ Self-Driving Car Engineer Nanodegree Program
  I used the kinematic motion model as in th elessons to model the motion of the car.
 
  State variables 
-     x position of car (x)
-     y position of car (y)
-     yaw angle (psi)
-     speed in heading direction (v)
-     cross track error (cte)
-     yaw angle error (epsi)
+     * x position of car (x)
+     * y position of car (y)
+     * yaw angle (psi)
+     * speed in heading direction (v)
+     * cross track error (cte)
+     * yaw angle error (epsi)
 
  Actuations
-     acceleration in heading direction (a)
-     steering angle (delta)
+     * acceleration in heading direction (a)
+     * steering angle (delta)
 
  Kinematic model
-      x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
-      y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
-      psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
-      v_[t+1] = v[t] + a[t] * dt
+      * x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+      * y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+      * psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+      * v_[t+1] = v[t] + a[t] * dt
 
  The reference trajectory was modelled using a 3rd order polynomial fitted to the waypoints given by the simulator. 
 
  cte and epsi were calculated aftre converting the state variables to car-cordinate system for calculation simplicity.
 
  Then cte is simply the y co-ordinate of the reference trajectory (fitted polynomial) at x = 0.
-      cte = polyeval(coeffs,0)
+      * cte = polyeval(coeffs,0)
 
  and epsi is the direction of the reference trajectory at x = 0. i.e. arctangent of the derivative of the reference trajectory
-      epsi = -atan(coeffs[1] + 2 * coeffs[2] * px + 3 * coeffs[3] * px * px)
+      * epsi = -atan(coeffs[1] + 2 * coeffs[2] * px + 3 * coeffs[3] * px * px)
 
 
 ## Timestep Length and Elapsed Duration (N & dt)
