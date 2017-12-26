@@ -3,6 +3,59 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## The Model
+
+ I used the kinematic motion model as in th elessons to model the motion of the car.
+
+ State variables 
+     x position of car (x)
+     y position of car (y)
+     yaw angle (psi)
+     speed in heading direction (v)
+     cross track error (cte)
+     yaw angle error (epsi)
+
+ Actuations
+     acceleration in heading direction (a)
+     steering angle (delta)
+
+ Kinematic model
+      x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+      y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+      psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+      v_[t+1] = v[t] + a[t] * dt
+
+ The reference trajectory was modelled using a 3rd order polynomial fitted to the waypoints given by the simulator. 
+
+ cte and epsi were calculated aftre converting the state variables to car-cordinate system for calculation simplicity.
+
+ Then cte is simply the y co-ordinate of the reference trajectory (fitted polynomial) at x = 0.
+      cte = polyeval(coeffs,0)
+
+ and epsi is the direction of the reference trajectory at x = 0. i.e. arctangent of the derivative of the reference trajectory
+      epsi = -atan(coeffs[1] + 2 * coeffs[2] * px + 3 * coeffs[3] * px * px)
+
+
+## Timestep Length and Elapsed Duration (N & dt)
+
+ Ideally N(Elapsed duration) should be as large as possible to account for the 
+ behaviour of the reference trajectory and dt(Timestep length) should be as small as possibble so that modelling is closer to the actual behaviour.
+
+ Increasing N and decreasing dt has computational cost,which is a consideration in
+ a real time system.
+
+ There is no benefit in increasing N above a certain point since the motion model
+ and the reference trajectory is not 100% accurate and is less accurate the
+ further we look i n to the future.
+
+ Since there is a latency of 0.1 ms in the system there is no need for
+ dt to be better than that. (i.e. to account for latency the we calculate
+ state after the latency period, by assuming the constant control inputs
+ for latency period)
+
+ Calculation horizon N was reduced to 10 and delta t was increased to 0.1 from
+ values used in the quizz to speed up the calculations.
+
 ## Dependencies
 
 * cmake >= 3.5

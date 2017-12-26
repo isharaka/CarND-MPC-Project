@@ -142,15 +142,17 @@ int main() {
           double epsi = -atan(coeffs[1] + 2 * coeffs[2] * px + 3 * coeffs[3] * px * px);
 
 
+          /*
+          State variables 
+             x and y positions of car
+             yaw angle
+             speed in heading direction
+             cross track error
+             yaw angle error
 
-          // State variables 
-          //    x and y positions of car
-          //    yaw angle
-          //    speed in heading direction
-          //    cross track error
-          //    yaw angle error
-          // Since we are in car-cordinate system the cars position (x,y) and yaw angle (psi) are all 0.
-          // Since car-cordinate system has the same scale as the global system v does not change
+          Since we are in car-cordinate system the cars position (x,y) and yaw angle (psi) are all 0.
+          Since car-cordinate system has the same scale as the global system v does not change
+          */
           Eigen::VectorXd state(6);
           state << 0, 0, 0, v, cte, epsi;
 

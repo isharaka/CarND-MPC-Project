@@ -5,10 +5,26 @@
 
 using CppAD::AD;
 
-// Calculation horizon N was reduced to 10 and delta t was increased to 0.1 from
-// values used in the quiz to speed up the calculations
-// Since there is a latency of 0.1 ms in the system there is no need for
-// dt to be better than that
+/*
+ Ideally N should be as large as possible to account for the 
+ behaviour of the reference trajectory and dt should be as small as possibble
+ so that modelling is closer to the actual behaviour.
+
+ Increasing N and decreasing dt has computational cost,which is a consideration in
+ a real time system.
+
+ There is no benefit in increasing N above a certain point since the motion model
+ and the reference trajectory is not 100% accurate and is less accurate the
+ further we look i n to the future.
+
+ Since there is a latency of 0.1 ms in the system there is no need for
+ dt to be better than that. (i.e. to account for latency the we calculate
+ state after the latency period, by assuming the constant control inputs
+ for latency period)
+
+ Calculation horizon N was reduced to 10 and delta t was increased to 0.1 from
+ values used in the quizz to speed up the calculations.
+ */
 size_t N =  10;
 double dt = 0.1;
 
