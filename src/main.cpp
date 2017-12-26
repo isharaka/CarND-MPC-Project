@@ -108,44 +108,62 @@ int main() {
           double delta = j[1]["steering_angle"];
           double acceleration = j[1]["throttle"];
 
-          delta = -delta * deg2rad(25);
+          delta = -delta * deg2rad(25); // convert steering angle delta from simulator units
 
-          // predict state in 100ms
+          // predict state in 100ms using kinematic model
           double latency = 0.1;
           double Lf = 2.67;
-          px = px + v*cos(psi)*latency;
-          py = py + v*sin(psi)*latency;
-          psi = psi + v*delta/Lf*latency;
-          v = v + acceleration*latency;
+          px = px + v*cos(psi)*latency;     // x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+          py = py + v*sin(psi)*latency;     // y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+          psi = psi + v*delta/Lf*latency;   // psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+          v = v + acceleration*latency;     // v_[t+1] = v[t] + a[t] * dt
 
           Eigen::VectorXd way_pts_x(ptsx.size());
           Eigen::VectorXd way_pts_y(ptsx.size());
 
+          // Tranform waypoints to car co-ordinates. 
+          // Remainder of the calculations are done in car co-ordinate system
           for(size_t i=0; i < ptsx.size(); i++) {
             auto coord_car = global2car(psi, px, py, ptsx[i], ptsy[i]);
             way_pts_x(i) = coord_car[0];
             way_pts_y(i) = coord_car[1];
           }
 
+          // Fit a third order polynomial to way points to
+          // model the reference trajectory
           auto coeffs = polyfit(way_pts_x, way_pts_y, 3);
+
+          // Since we are in the car co-ordinate system the cross track error
+          // is simply the y co-ordinate of the reference trajectory at x = 0
           double cte = polyeval(coeffs,0);
+          // For the same reason error in yaw angle is the direction of the
+          // reference trajectory at x = 0. i.e. arctangent of the derivative
+          // of the reference trajectory
           double epsi = -atan(coeffs[1] + 2 * coeffs[2] * px + 3 * coeffs[3] * px * px);
 
+
+
+          // State variables 
+          //    x and y positions of car
+          //    yaw angle
+          //    speed in heading direction
+          //    cross track error
+          //    yaw angle error
+          // Since we are in car-cordinate system the cars position (x,y) and yaw angle (psi) are all 0.
+          // Since car-cordinate system has the same scale as the global system v does not change
+          Eigen::VectorXd state(6);
+          state << 0, 0, 0, v, cte, epsi;
+
           /*
-          * TODO: Calculate steering angle and throttle using MPC.
-          *
+          * Calculate steering angle and throttle using MPC.
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
-
-          Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi;
           auto result = mpc.Solve(state, coeffs);
 
-          steer_value = -result[0];
-          throttle_value = result[1];
+          // Apply the first actuation values from the solver to the car
+          double steer_value = -result[0];
+          double throttle_value = result[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
