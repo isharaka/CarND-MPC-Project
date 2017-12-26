@@ -105,6 +105,18 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
+          double delta = j[1]["steering_angle"];
+          double acceleration = j[1]["throttle"];
+
+          delta = -delta * deg2rad(25);
+
+          // predict state in 100ms
+          double latency = 0.1;
+          double Lf = 2.67;
+          px = px + v*cos(psi)*latency;
+          py = py + v*sin(psi)*latency;
+          psi = psi + v*delta/Lf*latency;
+          v = v + acceleration*latency;
 
           Eigen::VectorXd way_pts_x(ptsx.size());
           Eigen::VectorXd way_pts_y(ptsx.size());
@@ -187,7 +199,7 @@ int main() {
           //
           // NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE
           // SUBMITTING.
-          //this_thread::sleep_for(chrono::milliseconds(100));
+          this_thread::sleep_for(chrono::milliseconds(static_cast<int>(latency*1000)));
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
