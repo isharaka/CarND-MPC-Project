@@ -109,7 +109,7 @@ int main() {
           double acceleration = j[1]["throttle"];
 
           v = v * 0.44704;
-          delta = -delta * deg2rad(25); // convert steering angle delta from simulator units
+          delta = -delta; // convert steering angle delta sign from simulator
 
           // predict state in 100ms using kinematic model
           double latency = 0.1;
