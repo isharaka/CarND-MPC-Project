@@ -108,7 +108,7 @@ int main() {
           double delta = j[1]["steering_angle"];
           double acceleration = j[1]["throttle"];
 
-          v = v * 0.44704;
+          v = v * 0.44704; // convert to m/s from mph
           delta = -delta; // convert steering angle delta sign from simulator
 
           // predict state in 100ms using kinematic model

@@ -61,6 +61,29 @@ Then cte is simply the y co-ordinate of the reference trajectory (fitted polynom
  Calculation horizon N was reduced to 10 and delta t was increased to 0.1 from
  values used in the quizz to speed up the calculations.
 
+## Preprocessing waypoints
+
+The waypoints are given by the simulator in global co-ordinates. I convert them to car co-ordinate system before fitting a polynomial to them.
+
+The following transformation is used to do that. px,py is the positin of the car in global co-idrdinates. psi is the yaw angle of the car in the same co-ordinate system.
+
+* x_car = (x_global - px)*cos(psi) + (y_global - py)*sin(psi)
+* y_car = -(x_global - px)*sin(psi) + (y_global - py)*cos(psi)
+
+
+## Handling Latency
+
+There is a latency of 100ms in applying the actuator values to the car. This means actuator values applied at time t+100ms is calculated by MPC using the input values at time t.
+
+To correct for that we estimate the input values at time t+100ms using the input values at time t (which we read from the simulator) and feed these precicted values to MPC. Now MPC will calculate the actuator values to be applied at t+100ms.
+
+The estimation is done using the kinematic model and assuming that the acceleration and steering angle remain constant for 100ms. In other words we assume the frequency of sending control outputs (and reading sttaes from the car) is slower than 1/100ms.
+
+* x_[t+100ms] = x[t] + v[t] * cos(psi[t]) * 100ms
+* y_[t+100ms] = y[t] + v[t] * sin(psi[t]) * 100ms
+* psi_[t+100ms] = psi[t] + v[t] / Lf * delta[t] * 100ms
+* v_[t+100ms] = v[t] + a[t] * 100ms
+
 ## Dependencies
 
 * cmake >= 3.5
