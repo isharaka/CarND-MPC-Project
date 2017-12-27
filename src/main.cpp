@@ -139,7 +139,7 @@ int main() {
           // For the same reason error in yaw angle is the direction of the
           // reference trajectory at x = 0. i.e. arctangent of the derivative
           // of the reference trajectory
-          double epsi = -atan(coeffs[1] + 2 * coeffs[2] * px + 3 * coeffs[3] * px * px);
+          double epsi = -atan(coeffs[1]);
 
 
           /*
